@@ -1,17 +1,10 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import {nanoid} from "nanoid";
+import contactRepository from "../repositories/contact.js";
 
-const contactsPath = path.resolve('db', 'contacts.json');
-
-const updateMovieList = async (contacts) => {
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-}
 
 export async function listContacts() {
     try {
-        const contacts = await fs.readFile(contactsPath, 'utf-8');
-        return JSON.parse(contacts);
+        const contacts = await contactRepository.getAllContacts();
+        return contacts;
     } catch (e) {
         console.log(e);
         return [];
@@ -19,44 +12,26 @@ export async function listContacts() {
 }
 
 export async function getContactById(contactId) {
-    const contacts = await listContacts();
-    const contact = contacts.find(contact => contact.id === contactId);
+    const contact = contactRepository.getContactById(contactId);
 
     return contact || null;
 }
 
 export async function removeContact(contactId) {
-    const contacts = await listContacts();
-    const index = contacts.findIndex(contact => contact.id === contactId);
-    if (index === -1) {
-        return null;
-    }
+    const contactToRemove = await contactRepository.getContactById(contactId);
+    await contactRepository.removeContact(contactId);
 
-    const [ result ] = contacts.splice(index, 1);
-    await updateMovieList(contacts);
-
-    return result;
+    return contactToRemove;
 }
 
-export async function addContact(name, email, phone) {
-    const contacts = await listContacts();
-    const newContact = {
-        id: nanoid(),
-        name,
-        email,
-        phone
-    }
-
-    contacts.push(newContact);
-    await updateMovieList(contacts);
-
+export async function addContact(payload) {
+    const newContact = await contactRepository.addContact(payload);
     return newContact;
 }
 
 export async function updateContact(contactId, name, email, phone) {
-    const contacts = await listContacts();
+    const contact = await contactRepository.getContactById(contactId);
 
-    const contact = contacts.find(contact => contact.id === contactId);
     if (!contact) {
         return null;
     }
@@ -65,8 +40,13 @@ export async function updateContact(contactId, name, email, phone) {
     contact.email = email || contact.email;
     contact.phone = phone || contact.phone;
 
-    await updateMovieList(contacts);
+    const updatedContact = await contactRepository.updateContact(contactId, contact);
 
+    return updatedContact;
+}
+
+export async function updateStatusContact(contactId, payload) {
+    const contact = await contactRepository.updateStatusContact(contactId, payload);
     return contact;
 }
 

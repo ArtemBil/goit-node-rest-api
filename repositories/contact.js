@@ -1,34 +1,39 @@
 import Contact from "../entities/contacts.js";
 
 class ContactRepository {
-    getAllContacts = async () => {
-        return await Contact.findAll();
+    getAllContacts = async (userId) => {
+        return await Contact.findAll({where: {owner: userId}});
     }
 
-    getContactById = async (id) => {
-        return await Contact.findByPk(id);
+    getContactById = async (id, userId) => {
+        return await Contact.findOne({
+            where: {
+                id,
+                owner: userId
+            }
+        });
     }
 
     addContact = async (payload) => {
         return Contact.create(payload, {returning: true});
     }
 
-    updateContact = async (id, payload) => {
+    updateContact = async (id, userId, payload) => {
         return Contact.update({
             name: payload.name,
             email: payload.email,
             phone: payload.phone,
-        }, {where: {id}, returning: true});
+        }, {where: {id, owner: userId}, returning: true});
     }
 
-    removeContact = async (id) => {
-        return Contact.destroy({where: {id}});
+    removeContact = async (id, userId) => {
+        return Contact.destroy({where: {id, owner: userId}});
     }
 
-    updateStatusContact = async (id, payload) => {
+    updateStatusContact = async (id, userId, payload) => {
         return Contact.update({
             favorite: payload.favorite,
-        }, {where: {id}, returning: true});
+        }, {where: {id, owner: userId}, returning: true});
     }
 }
 

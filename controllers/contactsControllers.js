@@ -9,12 +9,12 @@ import {
 import {checkIfContactNotExist} from "../helpers/checkIfContactNotExist.js";
 
 export const getAllContacts = async (req, res) => {
-    const contacts = await listContacts();
+    const contacts = await listContacts(req.user.id);
     return res.json(contacts);
 };
 
 export const getOneContact = async (req, res) => {
-    const contact = await getContactById(req.params.id);
+    const contact = await getContactById(req.params.id, req.user.id);
     if (checkIfContactNotExist(contact, res)) {
         return;
     }
@@ -23,7 +23,7 @@ export const getOneContact = async (req, res) => {
 };
 
 export const deleteContact = async (req, res) => {
-    const contact = await removeContact(req.params.id);
+    const contact = await removeContact(req.params.id, req.user.id);
     if (checkIfContactNotExist(contact, res)) {
         return;
     }
@@ -32,30 +32,30 @@ export const deleteContact = async (req, res) => {
 };
 
 export const createContact = async (req, res) => {
-    const contact = await addContact(req.body);
+    const contact = await addContact({...req.body, owner: req.user.id});
 
     res.status(201).json(contact);
 };
 
 export const updateContact = async (req, res) => {
-    const contact = await getContactById(req.params.id);
+    const contact = await getContactById(req.params.id, req.user.id);
     if (checkIfContactNotExist(contact, res)) {
         return;
     }
 
     const {name, email, phone} = req.body;
-    const updatedContact = await updateContactService(req.params.id, name, email, phone);
+    const updatedContact = await updateContactService(req.params.id, req.user.id, name, email, phone);
 
     return res.json(updatedContact);
 };
 
 export const updateStatusContact = async (req, res) => {
-    const contact = await getContactById(req.params.id);
+    const contact = await getContactById(req.params.id, req.user.id);
     if (checkIfContactNotExist(contact, res)) {
         return;
     }
 
-    const updatedContact = await updateStatusContactService(req.params.id, req.body);
+    const updatedContact = await updateStatusContactService(req.params.id, req.user.id, req.body);
 
     return res.json(updatedContact);
 };

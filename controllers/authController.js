@@ -1,4 +1,4 @@
-import {getCurrentUser, login, logout, register} from "../services/authService.js";
+import {getCurrentUser, login, logout, register, updateAvatar} from "../services/authService.js";
 import HttpError from "../helpers/HttpError.js";
 
 export const registerUser = async (req, res, next) => {
@@ -16,6 +16,7 @@ export const registerUser = async (req, res, next) => {
             "user": {
                 email: user.email,
                 subscription: user.subscription,
+                avatarURL: user.avatarURL,
             }
         });
     } catch (error) {
@@ -33,6 +34,7 @@ export const loginUser = async (req, res) => {
         user: {
             email: user.email,
             subscription: user.subscription,
+            avatarURL: user.avatarURL,
         }
     })
 }
@@ -43,6 +45,7 @@ export const listUser = (req, res) => {
     res.json({
         email: user.email,
         subscription: user.subscription,
+        avatarURL: user.avatarURL,
     })
 }
 
@@ -51,4 +54,21 @@ export const logoutUser = async (req, res) => {
     await logout(id);
 
     res.status(204).json({});
+}
+
+export const updateAvatarUser = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            throw HttpError(400, 'No file uploaded');
+        }
+
+        const {id} = req.user;
+        const avatarURL = await updateAvatar(id, req.file);
+
+        res.status(200).json({
+            avatarURL: avatarURL
+        });
+    } catch (error) {
+        next(error);
+    }
 }

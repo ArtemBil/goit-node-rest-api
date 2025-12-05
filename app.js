@@ -2,10 +2,10 @@ import 'dotenv/config'
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-import {Sequelize} from "sequelize";
-
 import contactsRouter from "./routes/contactsRouter.js";
 import sequelize from "./db/sequelize.js";
+import authRouter from "./routes/authRouter.js";
+import './auth/strategies/jwt/jwt.js'
 
 const app = express();
 
@@ -14,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/contacts", contactsRouter);
+app.use("/api/auth", authRouter);
 
 try {
     await sequelize.authenticate();

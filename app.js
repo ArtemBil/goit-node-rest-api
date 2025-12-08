@@ -8,6 +8,7 @@ import authRouter from "./routes/authRouter.js";
 import './auth/strategies/jwt/jwt.js'
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import transporter from "./email/config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

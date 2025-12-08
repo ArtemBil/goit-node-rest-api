@@ -1,8 +1,10 @@
 import User from "../entities/users.js";
+import {nanoid} from "nanoid";
 
 class UserRepository {
     async registerUser(email, password, avatarURL) {
-        const newUserInstance = new User({ email, avatarURL });
+        const verificationToken = nanoid();
+        const newUserInstance = new User({ email, avatarURL, verificationToken });
         await newUserInstance.setPassword(password);
 
         const newUser  = await newUserInstance.save({ returning: true });
@@ -25,6 +27,10 @@ class UserRepository {
         user.avatarURL = avatarURL;
         await user.save();
         return user;
+    }
+
+    async findByVerificationToken(verificationToken) {
+        return User.findOne({where: {verificationToken}});
     }
 }
 

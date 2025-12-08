@@ -1,5 +1,7 @@
-import {getCurrentUser, login, logout, register, updateAvatar} from "../services/authService.js";
+import {getCurrentUser, login, logout, register, updateAvatar, verify, verifyToken} from "../services/authService.js";
 import HttpError from "../helpers/HttpError.js";
+import auth from "../middlewares/auth.js";
+import authRouter from "../routes/authRouter.js";
 
 export const registerUser = async (req, res, next) => {
     const {email, password} = req.body;
@@ -71,4 +73,23 @@ export const updateAvatarUser = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+}
+
+export const verifyUser = async (req, res) => {
+    const {verificationToken} = req.params;
+    await verifyToken(verificationToken);
+
+    res.status(200).json({
+        message: 'Verification successful'
+    });
+}
+
+export const resendUserVerificationToken = async (req, res) => {
+    const {email} = req.body;
+    await verify(email);
+
+
+    res.status(200).json({
+        message: 'Verification email resent'
+    });
 }

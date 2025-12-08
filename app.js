@@ -6,9 +6,15 @@ import contactsRouter from "./routes/contactsRouter.js";
 import sequelize from "./db/sequelize.js";
 import authRouter from "./routes/authRouter.js";
 import './auth/strategies/jwt/jwt.js'
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
